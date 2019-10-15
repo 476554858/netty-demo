@@ -8,13 +8,25 @@ import com.aliyun.odps.account.AliyunAccount;
 public class OpdsDemo {
 
     public static void main(String[] args) {
-        Account account = new AliyunAccount("xxx", "xxx");
+        Account account = new AliyunAccount("H2TqEM2WkGc54QMp", "rYlbDIbJe10sbt6WsZ0lFKnXJA9Xg3");
         Odps odps = new Odps(account);
-        String odpsUrl = "http://service.cn-hangzhou.maxcompute.aliyun.com/api";
+        //http://service.cn-hangzhou.maxcompute.aliyun.com/api
+        String odpsUrl = "http://service.odpsstg.aliyun-inc.com/stgnew";
         odps.setEndpoint(odpsUrl);
-        odps.setDefaultProject("zjx_test");
-        for (Table t : odps.tables()) {
-            System.out.println(t.getName());
-        }
+        /*odps.setDefaultProject("bigdataLab");*/
+
+
+      /*  Table table = odps.tables().get("zjx_test_table1");
+        RecordReader reader = table.read(4);
+
+        Record record = reader.read();
+
+        Column[] columns =  record.getColumns();*/
+
+
+        TableTunnel tunnel = new TableTunnel(odps);
+        //tunnel.setEndpoint(odpsUrl);
+
+        TableTunnel.UploadSession uploadSession = tunnel.createUploadSession("bigdataLab","zjx_test_table1");
     }
 }
