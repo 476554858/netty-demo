@@ -2,13 +2,12 @@ package com.zjx.bilinio.chat;
 
 import com.zjx.bilinio.basic.NettyServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
 
 public class ChatServer {
     private int port;//服务器端口号
@@ -32,18 +31,26 @@ public class ChatServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {//8.创建一个通道的初始化参数
                         @Override//9.往Pipeline链中添加自定义的handler类
                         protected void initChannel(SocketChannel sc) throws Exception {
-                            sc.pipeline().addLast(new NettyServerHandler());
+                            ChannelPipeline pipeline = sc.pipeline();
+                            //往pipeline链中添加一个解码器
+                            pipeline.addLast("decoder",new StringDecoder());
+                            //往pipeline链中添加一个编码器
+                            pipeline.addLast("encoder",new StringEncoder());
+                            //往pipeline链中添加自定义的handler业务处理类;
+                            pipeline.addLast(new ChatServeHandler());
                         }
                     });
-            System.out.println(".......Server is ready.......");
+            System.out.println("Netty Chat Server启动.........");
             ChannelFuture cf = b.bind(9999).sync(); //10.绑定端口 bind方法是异步的 sync方法是同步阻塞的
-            System.out.println("......Server is starting......");
             //11.关闭通道，关闭线程组
             cf.channel().closeFuture().sync();
         }finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
+    }
 
+    public static void main(String[] args) throws Exception {
+        new ChatServer(9999).run();
     }
 }
