@@ -8,6 +8,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 
 public class WebSocketDemo {
     public static void main(String[] args) throws Exception{
@@ -28,8 +29,9 @@ public class WebSocketDemo {
 
                         pipeline.addLast(new HttpServerCodec()); //HttpRequest
                         pipeline.addLast(new HttpObjectAggregator(1024 * 10)); //FullHttpRequest
+                        pipeline.addLast(new WebSocketServerProtocolHandler("/"));
 
-                        pipeline.addLast(new NettyServerHandler());
+                        pipeline.addLast(new WebSocketDemoHandler());
                     }
                 });
         System.out.println(".......Server is ready.......");
